@@ -18,6 +18,10 @@ class EditDistanceCallback(keras.callbacks.Callback):
         for i in range(len(self.validation_images)):
             labels = self.validation_labels[i]
             predictions = self.prediction_model.predict(self.validation_images[i])
-            edit_distances.append(calculate_edit_distance(labels, predictions, self.max_len).numpy())
+            edit_distances.append(
+                calculate_edit_distance(labels, predictions, self.max_len).numpy()
+            )
 
-        print(f"Mean edit distance for epoch {epoch + 1}: {np.mean(edit_distances):.4f}")
+        print(
+            f"Mean edit distance for epoch {epoch + 1}: {np.mean(edit_distances):.4f}"
+        )

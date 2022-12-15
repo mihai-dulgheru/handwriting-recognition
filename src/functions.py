@@ -16,7 +16,9 @@ def get_image_paths_and_labels(samples):
         image_name = line_split[0]
         part_i = image_name.split("-")[0]
         part_ii = image_name.split("-")[1]
-        img_path = os.path.join(base_image_path, part_i, part_i + "-" + part_ii, image_name + ".png")
+        img_path = os.path.join(
+            base_image_path, part_i, part_i + "-" + part_ii, image_name + ".png"
+        )
         if os.path.getsize(img_path):
             paths.append(img_path)
             corrected_samples.append(file_line.split("\n")[0])
@@ -55,7 +57,14 @@ def distortion_free_resize(image, img_size):
     else:
         pad_width_left = pad_width_right = pad_width // 2
 
-    image = tf.pad(image, paddings=[[pad_height_top, pad_height_bottom], [pad_width_left, pad_width_right], [0, 0], ], )
+    image = tf.pad(
+        image,
+        paddings=[
+            [pad_height_top, pad_height_bottom],
+            [pad_width_left, pad_width_right],
+            [0, 0],
+        ],
+    )
 
     image = tf.transpose(image, perm=[1, 0, 2])
     image = tf.image.flip_left_right(image)
@@ -72,13 +81,16 @@ def preprocess_image(image_path, img_size=(image_width, image_height)):
 
 def get_char_to_num(characters):
     # Mapping characters to integers.
-    return keras.layers.experimental.preprocessing.StringLookup(vocabulary=list(characters), mask_token=None)
+    return keras.layers.experimental.preprocessing.StringLookup(
+        vocabulary=list(characters), mask_token=None
+    )
 
 
 def get_num_to_char(characters):
     # Mapping integers back to original characters.
-    return keras.layers.experimental.preprocessing.StringLookup(vocabulary=list(characters), mask_token=None,
-                                                                invert=True)
+    return keras.layers.experimental.preprocessing.StringLookup(
+        vocabulary=list(characters), mask_token=None, invert=True
+    )
 
 
 def vectorize_label(label, characters, max_len):
@@ -98,8 +110,11 @@ def process_images_labels(image_path, label, characters, max_len):
 
 def prepare_dataset(image_paths, labels, characters, max_len):
     dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels)).map(
-        lambda image_path, label: process_images_labels(image_path, label, characters, max_len),
-        num_parallel_calls=AUTOTUNE)
+        lambda image_path, label: process_images_labels(
+            image_path, label, characters, max_len
+        ),
+        num_parallel_calls=AUTOTUNE,
+    )
     return dataset.batch(batch_size).cache().prefetch(AUTOTUNE)
 
 
@@ -109,11 +124,17 @@ def calculate_edit_distance(labels, predictions, max_len):
 
     # Make predictions and convert them to sparse tensors.
     input_len = np.ones(predictions.shape[0]) * predictions.shape[1]
-    predictions_decoded = keras.backend.ctc_decode(predictions, input_length=input_len, greedy=True)[0][0][:, :max_len]
-    sparse_predictions = tf.cast(tf.sparse.from_dense(predictions_decoded), dtype=tf.int64)
+    predictions_decoded = keras.backend.ctc_decode(
+        predictions, input_length=input_len, greedy=True
+    )[0][0][:, :max_len]
+    sparse_predictions = tf.cast(
+        tf.sparse.from_dense(predictions_decoded), dtype=tf.int64
+    )
 
     # Compute individual edit distances and average them out.
-    edit_distances = tf.edit_distance(sparse_predictions, sparse_labels, normalize=False)
+    edit_distances = tf.edit_distance(
+        sparse_predictions, sparse_labels, normalize=False
+    )
     return tf.reduce_mean(edit_distances)
 
 
@@ -122,7 +143,9 @@ def decode_batch_predictions(predictions, characters, max_len):
     num_to_char = get_num_to_char(characters)
     input_len = np.ones(predictions.shape[0]) * predictions.shape[1]
     # Use greedy search. For complex tasks, you can use beam search.
-    results = keras.backend.ctc_decode(predictions, input_length=input_len, greedy=True)[0][0][:, :max_len]
+    results = keras.backend.ctc_decode(
+        predictions, input_length=input_len, greedy=True
+    )[0][0][:, :max_len]
     # Iterate over the results and get back the text.
     output_text = []
     for res in results:
@@ -130,3 +153,13 @@ def decode_batch_predictions(predictions, characters, max_len):
         res = tf.strings.reduce_join(num_to_char(res)).numpy().decode("utf-8")
         output_text.append(res)
     return output_text
+
+
+def predict(image_path, prediction_model, characters, max_len):
+    image = preprocess_image(image_path)
+    batch_images = np.array([list(image)])
+    predictions = prediction_model.predict(batch_images)
+    prediction_texts = decode_batch_predictions(
+        predictions=predictions, characters=characters, max_len=max_len
+    )
+    return prediction_texts
