@@ -8,6 +8,7 @@ from functions import (
     get_image_paths_and_labels,
     clean_labels,
     prepare_dataset,
+    decode_batch_predictions,
 )
 from model import build_model
 
@@ -114,4 +115,31 @@ def get_prediction_model():
         callbacks=[edit_distance_callback],
     )
 
+    #  Let's check results on some test samples.
+    # import matplotlib.pyplot as plt
+    #
+    # for batch in test_ds.take(1):
+    #     batch_images = batch["image"]
+    #     _, ax = plt.subplots(4, 4, figsize=(15, 8))
+    #
+    #     preds = prediction_model.predict(batch_images)
+    #     pred_texts = decode_batch_predictions(preds, characters, max_len)
+    #
+    #     for i in range(16):
+    #         img = batch_images[i]
+    #         img = tf.image.flip_left_right(img)
+    #         img = tf.transpose(img, perm=[1, 0, 2])
+    #         img = (img * 255.0).numpy().clip(0, 255).astype(np.uint8)
+    #         img = img[:, :, 0]
+    #
+    #         title = f"Prediction: {pred_texts[i]}"
+    #         ax[i // 4, i % 4].imshow(img, cmap="gray")
+    #         ax[i // 4, i % 4].set_title(title)
+    #         ax[i // 4, i % 4].axis("off")
+    # plt.show()
+
     return prediction_model, test_ds, characters, max_len
+
+
+if __name__ == '__main__':
+    get_prediction_model()

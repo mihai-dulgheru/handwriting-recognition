@@ -21,7 +21,7 @@ def get_image_paths_and_labels(samples):
         )
         if os.path.getsize(img_path):
             paths.append(img_path)
-            corrected_samples.append(file_line.split("\n")[0])
+            corrected_samples.append(file_line.split("\n")[0].strip())
 
     return paths, corrected_samples
 
