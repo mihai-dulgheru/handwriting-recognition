@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 from pdf2image import convert_from_path
 
@@ -11,7 +13,9 @@ h_cell = (h - p[0] - p[2]) / no_lines
 
 
 def convert_pdf_to_image(pdf_path):
-    return convert_from_path(pdf_path, 600, poppler_path="../../../libs/poppler-0.68.0/bin")
+    return convert_from_path(
+        pdf_path, 600, poppler_path="../../libs/poppler-0.68.0/bin"
+    )
 
 
 def crop_image(img):
@@ -25,8 +29,17 @@ def generate_words(prefix, img, moves):
             y = line * h_cell + 4
             # .convert("1") or .convert("LA")
             # https://holypython.com/python-pil-tutorial/how-to-convert-an-image-to-black-white-in-python-pil/
-            img.crop((x, y, x + w_cell - 5, y + h_cell - 5)).save(
-                f"../data/words/{prefix}-{moves[column][(line - 1) / 2]}.png", "PNG")
+            filename = (
+                f"../data/words/{prefix}-{moves[column][int((line - 1) / 2)]}.png"
+            )
+            # Get the original file name and path
+            original_file_name = os.path.basename(filename)
+            original_file_path = os.path.dirname(filename)
+            fp = os.path.join(original_file_path, original_file_name)
+            img.crop((x, y, x + w_cell - 5, y + h_cell - 5)).convert("LA").save(
+                fp=fp, format="PNG"
+            )
+            print(f"Image '{original_file_name}' has been successfully saved")
 
 
 if __name__ == "__main__":
@@ -35,4 +48,6 @@ if __name__ == "__main__":
     df = pd.read_excel("chess_moves.xlsx", index_col=None, header=None, comment="#")
     j = 0
     for i in range(len(images)):
-        generate_words(prefix=f"{chr(j + 97)}-{i + 1}", img=crop_image(images[i]), moves=df)
+        generate_words(
+            prefix=f"{chr(j + 97)}-{i + 1}", img=crop_image(images[i]), moves=df
+        )
