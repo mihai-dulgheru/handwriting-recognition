@@ -23,7 +23,7 @@ def generate_characters(prefix, img, characters):
             y = p[0] + line * (h_cell + b) + b
             # .convert("1") or .convert("LA")
             # https://holypython.com/python-pil-tutorial/how-to-convert-an-image-to-black-white-in-python-pil/
-            filename = f"../data/characters/{prefix}-{characters[int((line - 1) / 2) * no_columns + column]}.png"
+            filename = f"../../data/characters/{prefix}-{characters[int((line - 1) / 2) * no_columns + column]}.png"
             # Get the original file name and path
             original_file_name = os.path.basename(filename)
             original_file_path = os.path.dirname(filename)

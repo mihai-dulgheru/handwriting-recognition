@@ -1,4 +1,6 @@
 .idea
+data/characters
+data/characters.txt
 data/words
 data/words.txt
 src/__pycache__

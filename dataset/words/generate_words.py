@@ -30,7 +30,7 @@ def generate_words(prefix, img, moves):
             # .convert("1") or .convert("LA")
             # https://holypython.com/python-pil-tutorial/how-to-convert-an-image-to-black-white-in-python-pil/
             filename = (
-                f"../data/words/{prefix}-{moves[column][int((line - 1) / 2)]}.png"
+                f"../../data/words/{prefix}-{moves[column][int((line - 1) / 2)]}.png"
             )
             # Get the original file name and path
             original_file_name = os.path.basename(filename)
