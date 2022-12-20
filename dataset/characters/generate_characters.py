@@ -4,7 +4,7 @@ from pdf2image import convert_from_path
 
 no_lines = 6
 no_columns = 8
-w_cell = 540
+w_cell = 541
 h_cell = 260
 p = (300, 300)
 b = 4
