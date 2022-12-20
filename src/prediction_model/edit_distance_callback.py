@@ -1,7 +1,7 @@
 import numpy as np
 from tensorflow import keras
 
-from ..functions import calculate_edit_distance
+from src.functions import calculate_edit_distance
 
 
 class EditDistanceCallback(keras.callbacks.Callback):

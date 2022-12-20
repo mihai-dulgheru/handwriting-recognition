@@ -2,14 +2,14 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
-from edit_distance_callback import EditDistanceCallback
-from model import build_model
-from ..constants import base_path
-from ..functions import (
+from src.constants import base_path
+from src.functions import (
     get_image_paths_and_labels,
     clean_labels,
     prepare_dataset,
 )
+from .edit_distance_callback import EditDistanceCallback
+from .model import build_model
 
 np.random.seed(42)
 tf.random.set_seed(42)
@@ -106,7 +106,7 @@ def prediction_model():
         prediction_model, validation_images, validation_labels, max_len
     )
 
-    # Train the model.
+    # Train the prediction_model.
     model.fit(
         train_ds,
         validation_data=validation_ds,

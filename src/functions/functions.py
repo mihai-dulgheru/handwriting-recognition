@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
-from ..constants import (
+from src.constants import (
     base_image_path,
     batch_size,
     padding_token,

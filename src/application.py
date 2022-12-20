@@ -2,8 +2,8 @@ import os
 
 from flask import Flask, render_template, request
 
-from functions import predict
-from model import prediction_model
+from src.functions import predict
+from src.prediction_model import prediction_model
 
 IMAGES_FOLDER = os.path.join("static", "images")
 

@@ -1,11 +1,11 @@
-# Our model will use the CTC loss as an endpoint layer. For a detailed understanding of the
+# Our prediction_model will use the CTC loss as an endpoint layer. For a detailed understanding of the
 # CTC loss, refer to [this post](https://distill.pub/2017/ctc/).
 
 import tensorflow as tf
 from tensorflow import keras
 
-from ..constants import image_width, image_height
-from ..functions import get_char_to_num
+from src.constants import image_width, image_height
+from src.functions import get_char_to_num
 
 
 class CTCLayer(keras.layers.Layer):
@@ -29,7 +29,7 @@ class CTCLayer(keras.layers.Layer):
 
 def build_model(characters):
     char_to_num = get_char_to_num(characters)
-    # Inputs to the model
+    # Inputs to the prediction_model
     input_img = keras.Input(shape=(image_width, image_height, 1), name="image")
     labels = keras.layers.Input(name="label", shape=(None,))
 
@@ -58,7 +58,7 @@ def build_model(characters):
     # We have used two max pool with pool size and strides 2.
     # Hence, down-sampled feature maps are 4x smaller. The number of
     # filters in the last layer is 64. Reshape accordingly before
-    # passing the output to the RNN part of the model.
+    # passing the output to the RNN part of the prediction_model.
     new_shape = ((image_width // 4), (image_height // 4) * 64)
     x = keras.layers.Reshape(target_shape=new_shape, name="reshape")(x)
     x = keras.layers.Dense(64, activation="relu", name="dense1")(x)
@@ -81,12 +81,12 @@ def build_model(characters):
     # Add CTC layer for calculating CTC loss at each step.
     output = CTCLayer(name="ctc_loss")(labels, x)
 
-    # Define the model.
+    # Define the prediction_model.
     model = keras.models.Model(
         inputs=[input_img, labels], outputs=output, name="handwriting_recognizer"
     )
     # Optimizer.
     opt = keras.optimizers.Adam()
-    # Compile the model and return.
+    # Compile the prediction_model and return.
     model.compile(optimizer=opt)
     return model

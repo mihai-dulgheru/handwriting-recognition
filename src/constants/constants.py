@@ -2,7 +2,7 @@ import os
 
 import tensorflow as tf
 
-base_path = "../../data"
+base_path = "../data"
 base_image_path = os.path.join(base_path, "words")
 batch_size = 64
 padding_token = 99

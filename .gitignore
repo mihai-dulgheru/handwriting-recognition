@@ -5,7 +5,6 @@ data/words
 data/words.txt
 src/__pycache__
 src/static
-dataset/data
 libs/poppler-0.68.0/include
 libs/poppler-0.68.0/lib
 libs/poppler-0.68.0/share
