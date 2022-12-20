@@ -3,15 +3,15 @@ import os
 from flask import Flask, render_template, request
 
 from functions import predict
-from prediction_model import *
+from model import prediction_model
 
-IMAGES_FOLDER = os.path.join('static', 'images')
+IMAGES_FOLDER = os.path.join("static", "images")
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = IMAGES_FOLDER
 
 # This code will be executed while creating the Flask application.
-prediction_model, test_ds, characters, max_len = get_prediction_model()
+prediction_model, test_ds, characters, max_len = prediction_model()
 
 
 @app.route("/", methods=["POST", "GET"])
