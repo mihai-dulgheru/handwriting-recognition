@@ -2,10 +2,12 @@ import os
 
 import tensorflow as tf
 
-base_path = "../data"
-base_image_path = os.path.join(base_path, "words")
-batch_size = 64
-padding_token = 99
-image_width = 128
-image_height = 32
+BASE_PATH = "../data"
+BASE_IMAGE_PATH = os.path.join(BASE_PATH, "words")
+BATCH_SIZE = 64
+PADDING_TOKEN = 99
+IMAGE_WIDTH = 128
+IMAGE_HEIGHT = 32
 AUTOTUNE = tf.data.AUTOTUNE
+IAM_HANDWRITING_DATABASE = False
+PERCENTAGE_OF_TRAINING_DATA = 0.9
