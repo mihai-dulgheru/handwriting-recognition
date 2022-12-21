@@ -1,8 +1,15 @@
+import os
+from datetime import datetime
+
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
-from src.constants import base_path
+from src.constants import (
+    BASE_PATH,
+    IAM_HANDWRITING_DATABASE,
+    PERCENTAGE_OF_TRAINING_DATA,
+)
 from src.functions import (
     get_image_paths_and_labels,
     clean_labels,
@@ -18,15 +25,25 @@ tf.random.set_seed(42)
 def prediction_model():
     # Dataset splitting
     words_list = []
-    words = open(f"{base_path}/words.txt", "r").readlines()
-    for line in words:
-        if line[0] == "#":
-            continue
-        if line.split(" ")[1] != "err":  # We don't need to deal with erred entries.
-            words_list.append(line)
+    if IAM_HANDWRITING_DATABASE:
+        words = open(f"{BASE_PATH}/words.txt", "r").readlines()
+        for line in words:
+            if line[0] == "#":
+                continue
+            if line.split(" ")[1] != "err":  # We don't need to deal with erred entries.
+                words_list.append(line)
+    else:
+        characters = open(f"{BASE_PATH}/characters.txt").readlines()
+        for line in characters:
+            if line[0] != "#":
+                words_list.append(line)
+        # words = open(f"{BASE_PATH}/words.txt", "r").readlines()
+        # for line in words:
+        #     if line[0] != "#":
+        #         words_list.append(line)
     np.random.shuffle(words_list)
 
-    split_idx = int(0.8 * len(words_list))
+    split_idx = int(PERCENTAGE_OF_TRAINING_DATA * len(words_list))
     train_samples = words_list[:split_idx]
     test_samples = words_list[split_idx:]
 
@@ -38,9 +55,11 @@ def prediction_model():
         test_samples
     )
 
-    # print(f"Total training samples: {len(train_samples)}")
-    # print(f"Total validation samples: {len(validation_samples)}")
-    # print(f"Total test samples: {len(test_samples)}")
+    print(
+        f"{os.linesep}[{datetime.now()}]: Total training samples: {len(train_samples)}"
+    )
+    print(f"[{datetime.now()}]: Total validation samples: {len(validation_samples)}")
+    print(f"[{datetime.now()}]: Total test samples: {len(test_samples)}")
 
     # Data input pipeline
     train_img_paths, train_labels = get_image_paths_and_labels(samples=train_samples)
@@ -61,8 +80,9 @@ def prediction_model():
         train_labels_cleaned.append(label)
     characters = sorted(list(characters))
 
-    # print("Maximum length: ", max_len)
-    # print("Vocab size: ", len(characters))
+    print(f"{os.linesep}[{datetime.now()}]: Maximum length: {max_len}")
+    print(f"[{datetime.now()}]: Vocab size: {len(characters)}")
+    print(f"[{datetime.now()}]: Vocab: {characters}")
 
     # Check some label samples.
     # print(train_labels_cleaned[:10])
@@ -97,16 +117,16 @@ def prediction_model():
         validation_labels.append(batch["label"])
 
     # Training
-    epochs = 1  # To get good results this should be at least 50.
+    epochs = 50  # To get good results this should be at least 50.
     model = build_model(characters)
-    prediction_model = keras.models.Model(
+    prediction_m = keras.models.Model(
         model.get_layer(name="image").input, model.get_layer(name="dense2").output
     )
     edit_distance_callback = EditDistanceCallback(
-        prediction_model, validation_images, validation_labels, max_len
+        prediction_m, validation_images, validation_labels, max_len
     )
 
-    # Train the prediction_model.
+    # Train the prediction_m.
     model.fit(
         train_ds,
         validation_data=validation_ds,
@@ -114,4 +134,8 @@ def prediction_model():
         callbacks=[edit_distance_callback],
     )
 
-    return prediction_model, test_ds, characters, max_len
+    return prediction_m, test_ds, characters, max_len
+
+
+if __name__ == "__main__":
+    _, _, _, _ = prediction_model()

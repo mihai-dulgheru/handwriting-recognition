@@ -4,7 +4,7 @@
 import tensorflow as tf
 from tensorflow import keras
 
-from src.constants import image_width, image_height
+from src.constants import IMAGE_WIDTH, IMAGE_HEIGHT
 from src.functions import get_char_to_num
 
 
@@ -30,7 +30,7 @@ class CTCLayer(keras.layers.Layer):
 def build_model(characters):
     char_to_num = get_char_to_num(characters)
     # Inputs to the prediction_model
-    input_img = keras.Input(shape=(image_width, image_height, 1), name="image")
+    input_img = keras.Input(shape=(IMAGE_WIDTH, IMAGE_HEIGHT, 1), name="image")
     labels = keras.layers.Input(name="label", shape=(None,))
 
     # First conv block.
@@ -59,7 +59,7 @@ def build_model(characters):
     # Hence, down-sampled feature maps are 4x smaller. The number of
     # filters in the last layer is 64. Reshape accordingly before
     # passing the output to the RNN part of the prediction_model.
-    new_shape = ((image_width // 4), (image_height // 4) * 64)
+    new_shape = ((IMAGE_WIDTH // 4), (IMAGE_HEIGHT // 4) * 64)
     x = keras.layers.Reshape(target_shape=new_shape, name="reshape")(x)
     x = keras.layers.Dense(64, activation="relu", name="dense1")(x)
     x = keras.layers.Dropout(0.2)(x)
