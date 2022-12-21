@@ -5,12 +5,13 @@ import tensorflow as tf
 from tensorflow import keras
 
 from src.constants import (
-    base_image_path,
-    batch_size,
-    padding_token,
-    image_width,
-    image_height,
+    BASE_IMAGE_PATH,
+    BATCH_SIZE,
+    PADDING_TOKEN,
+    IMAGE_WIDTH,
+    IMAGE_HEIGHT,
     AUTOTUNE,
+    IAM_HANDWRITING_DATABASE,
 )
 
 
@@ -18,20 +19,26 @@ def get_image_paths_and_labels(samples):
     paths = []
     corrected_samples = []
     for (i, file_line) in enumerate(samples):
-        line_strip = file_line.strip()
-        line_split = line_strip.split(" ")
+        if IAM_HANDWRITING_DATABASE:
+            line_strip = file_line.strip()
+            line_split = line_strip.split(" ")
 
-        # Each line split will have this format for the corresponding image:
-        # part1/part1-part2/part1-part2-part3.png
-        image_name = line_split[0]
-        part_i = image_name.split("-")[0]
-        part_ii = image_name.split("-")[1]
-        img_path = os.path.join(
-            base_image_path, part_i, part_i + "-" + part_ii, image_name + ".png"
-        )
-        if os.path.getsize(img_path):
-            paths.append(img_path)
-            corrected_samples.append(file_line.split("\n")[0].strip())
+            # Each line split will have this format for the corresponding image:
+            # part1/part1-part2/part1-part2-part3.png
+            image_name = line_split[0]
+            part_i = image_name.split("-")[0]
+            part_ii = image_name.split("-")[1]
+            img_path = os.path.join(
+                BASE_IMAGE_PATH, part_i, part_i + "-" + part_ii, image_name + ".png"
+            )
+            if os.path.getsize(img_path):
+                paths.append(img_path)
+                corrected_samples.append(file_line.split("\n")[0].strip())
+        else:
+            img_path = file_line.split(".png")[0] + ".png"
+            if os.path.getsize(img_path):
+                paths.append(img_path)
+                corrected_samples.append(file_line.split("\n")[0].strip())
 
     return paths, corrected_samples
 
@@ -81,7 +88,7 @@ def distortion_free_resize(image, img_size):
     return image
 
 
-def preprocess_image(image_path, img_size=(image_width, image_height)):
+def preprocess_image(image_path, img_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
     image = tf.io.read_file(image_path)
     image = tf.image.decode_png(image, 1)
     image = distortion_free_resize(image, img_size)
@@ -108,7 +115,7 @@ def vectorize_label(label, characters, max_len):
     label = char_to_num(tf.strings.unicode_split(label, input_encoding="UTF-8"))
     length = tf.shape(label)[0]
     pad_amount = max_len - length
-    label = tf.pad(label, paddings=[[0, pad_amount]], constant_values=padding_token)
+    label = tf.pad(label, paddings=[[0, pad_amount]], constant_values=PADDING_TOKEN)
     return label
 
 
@@ -125,7 +132,7 @@ def prepare_dataset(image_paths, labels, characters, max_len):
         ),
         num_parallel_calls=AUTOTUNE,
     )
-    return dataset.batch(batch_size).cache().prefetch(AUTOTUNE)
+    return dataset.batch(BATCH_SIZE).cache().prefetch(AUTOTUNE)
 
 
 def calculate_edit_distance(labels, predictions, max_len):
