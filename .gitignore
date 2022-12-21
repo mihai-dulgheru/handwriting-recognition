@@ -4,7 +4,4 @@ data/characters.txt
 data/words
 data/words.txt
 src/__pycache__
-src/static
-libs/poppler-0.68.0/include
-libs/poppler-0.68.0/lib
-libs/poppler-0.68.0/share
+src/static/images/*.png
