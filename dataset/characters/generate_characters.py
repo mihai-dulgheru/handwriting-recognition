@@ -16,14 +16,31 @@ def convert_pdf_to_image(pdf_path):
     )
 
 
+def write_to_file(lines):
+    with open("../../data/characters.txt", "w") as file:
+        file.write(
+            """#------------------------------ characters.txt ------------------------------#
+#
+# format: ../data/characters/a-1-A.png A
+#
+#     ../data/characters/a-1-A.png  -> the path where the file is stored
+#     A                             -> the transcription for this character
+#
+"""
+        )
+        file.writelines([f"{line[0]} {line[1]}\n" for line in lines])
+
+
 def generate_characters(prefix, img, characters):
+    lines = []
     for line in range(1, no_lines, 2):
         for column in range(no_columns):
             x = p[1] + column * (w_cell + b) + b
             y = p[0] + line * (h_cell + b) + b
             # .convert("1") or .convert("LA")
             # https://holypython.com/python-pil-tutorial/how-to-convert-an-image-to-black-white-in-python-pil/
-            filename = f"../../data/characters/{prefix}-{characters[int((line - 1) / 2) * no_columns + column]}.png"
+            char = characters[int((line - 1) / 2) * no_columns + column]
+            filename = f"../../data/characters/{prefix}-{char}.png"
             # Get the original file name and path
             original_file_name = os.path.basename(filename)
             original_file_path = os.path.dirname(filename)
@@ -31,7 +48,11 @@ def generate_characters(prefix, img, characters):
             img.crop((x, y, x + w_cell, y + h_cell)).convert("LA").save(
                 fp=fp, format="PNG"
             )
+            lines.append(
+                (fp.replace("\\", "/").replace("../../", "../"), str(char).strip())
+            )
             print(f"Image '{original_file_name}' has been successfully saved")
+    write_to_file(lines)
 
 
 if __name__ == "__main__":

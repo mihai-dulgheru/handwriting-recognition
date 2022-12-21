@@ -97,7 +97,7 @@ def prediction_model():
         validation_labels.append(batch["label"])
 
     # Training
-    epochs = 50  # To get good results this should be at least 50.
+    epochs = 1  # To get good results this should be at least 50.
     model = build_model(characters)
     prediction_model = keras.models.Model(
         model.get_layer(name="image").input, model.get_layer(name="dense2").output
